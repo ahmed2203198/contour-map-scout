@@ -1,0 +1,58 @@
+# Project-wide Gradle settings.
+
+# IDE (e.g. Android Studio) users:
+# Gradle settings configured through the IDE *will override*
+# any settings specified in this file.
+
+# For more details on how to configure your build environment visit
+# http://www.gradle.org/docs/current/userguide/build_environment.html
+
+# Specifies the JVM arguments used for the daemon process.
+# The setting is particularly useful for tweaking memory settings.
+# Default value: -Xmx512m -XX:MaxMetaspaceSize=256m
+org.gradle.jvmargs=-Xmx2048m -XX:MaxMetaspaceSize=512m
+
+# When configured, Gradle will run in incubating parallel mode.
+# This option should only be used with decoupled projects. More details, visit
+# http://www.gradle.org/docs/current/userguide/multi_project_builds.html#sec:decoupled_projects
+# org.gradle.parallel=true
+
+# AndroidX package structure to make it clearer which packages are bundled with the
+# Android operating system, and which are packaged with your app's APK
+# https://developer.android.com/topic/libraries/support-library/androidx-rn
+android.useAndroidX=true
+
+# Use this property to specify which architecture you want to build.
+# You can also override it from the CLI using
+# ./gradlew <task> -PreactNativeArchitectures=x86_64
+reactNativeArchitectures=armeabi-v7a,arm64-v8a,x86,x86_64
+
+# Use this property to enable support to the new architecture.
+# This will allow you to use TurboModules and the Fabric render in
+# your application. You should enable this flag either if you want
+# to write custom TurboModules/Fabric components OR use libraries that
+# are providing them.
+newArchEnabled=true
+
+# Use this property to enable or disable the Hermes JS engine.
+# If set to false, you will be using JSC instead.
+hermesEnabled=true
+
+# JDK path — if unset, Gradle uses the JAVA_HOME env var. Don't hardcode it:
+# older versions of this template pinned C:\Program Files\Java\jdk-17 which
+# doesn't exist on this box (real JDK is Eclipse Adoptium) and broke builds.
+# Codemagic / CI rely on their own JAVA_HOME anyway.
+
+# !!! НЕ КОММИТЬТЕ ЭТОТ ФАЙЛ С РЕАЛЬНЫМИ ПАРОЛЯМИ В GIT !!!
+# Release signing config — заполнено значениями по умолчанию (keystore.keystore рядом с app/).
+# При отсутствии keystore.keystore release APK будет подписан debug-ключом (см. build.gradle).
+# Release signing is off by default — build.gradle falls back to debug signing
+# when MYAPP_RELEASE_STORE_FILE is absent. Uncomment and set all four on
+# machines where you have a real keystore.
+# MYAPP_RELEASE_STORE_FILE=keystore.keystore
+# MYAPP_RELEASE_KEY_ALIAS=com.yourapp.alias
+# MYAPP_RELEASE_STORE_PASSWORD=your_store_password
+# MYAPP_RELEASE_KEY_PASSWORD=your_key_password
+
+# AGP 8.6 знает SDK только до 35 и падает на compileSdk 36 — глушим её проверку.
+android.suppressUnsupportedCompileSdk=36

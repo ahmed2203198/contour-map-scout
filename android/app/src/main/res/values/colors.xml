@@ -1,0 +1,7 @@
+<resources>
+    <!-- Splash background — kept dark so the pre-RN window before the JS bundle
+         loads matches the in-app loader instead of flashing white.
+         Each generated app's LoaderScreen will paint over this anyway, but the
+         pre-bridge frame uses this value, which is what the user sees first. -->
+    <color name="splashBackground">#0A0A0F</color>
+</resources>

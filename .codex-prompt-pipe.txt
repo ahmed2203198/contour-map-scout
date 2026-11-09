@@ -1,0 +1,36 @@
+You are an asset generator for a mobile game. Generate all images described below and save them as PNG files in the CURRENT DIRECTORY.
+
+RULES:
+1. Use your NATIVE IMAGE GENERATION TOOL (DALL-E) to generate each image — do NOT draw with Python/PIL, use the real AI image generation tool for high-quality game art.
+2. After generating each image with the native tool, copy it from the generated_images path to the current directory with the correct filename.
+3. Use these EXACT filenames: bg_game.png, button_rect.png, button_round.png, icon_home.png, icon_pause.png, logo.png, sprite_1.png, sprite_2.png, sprite_3.png, sprite_4.png, sprite_5.png (and reel_grid.png for slots). Draw EXACTLY five sprites, sprite_1..sprite_5: the app code is written in parallel and references exactly these names.
+4. Do NOT resize images — save them at the native DALL-E resolution. Resizing is done externally.
+5. TRANSPARENT BACKGROUNDS: ALL images EXCEPT bg_game MUST have a TRANSPARENT background (PNG with alpha channel). Generate sprites, icons, buttons, and logo as isolated objects on a transparent/empty background. bg_game is the ONLY image with a solid opaque background.
+6. LOGO: The logo MUST be a pure image with NO TEXT, NO LETTERS, NO WORDS whatsoever — not the game name, not any label, not any writing. Just a graphical symbol/object.
+7. Do NOT create a zip archive. Just save the individual PNG files.
+8. When completely done, print exactly: CODEX_ASSETS_DONE
+
+ASSET SPECIFICATION:
+Название игры - "Contour Map Scout"
+Основные цвета и тематика - бренд (гембловый) - "Casino"
+Основная механика - "lessons use an interactive topographic map of invented land"
+780х1666 - png - бекграунд игры, края не должны быть закруглённые (НЕПРОЗРАЧНЫЙ фон, полноцветная заливка)
+250х80 - png - подложка под кнопки (прямоугольная) - НА ПРОЗРАЧНОМ ФОНЕ (PNG с альфа-каналом)
+250x250 - png - подложка под кнопки (круглые) - стиль такой же, как у прямоугольной - НА ПРОЗРАЧНОМ ФОНЕ
+250х250 - png - иконка домика (более простое изображение, чтобы было понятно, что это навигация) - НА ПРОЗРАЧНОМ ФОНЕ
+250х250 - png - иконка паузы (более простое изображение в стиле домика, чтобы было понятно, что это навигация) - НА ПРОЗРАЧНОМ ФОНЕ
+250х250 - png - любые другие основные изображения, связанные с основной механикой - НА ПРОЗРАЧНОМ ФОНЕ (каждый элемент отдельно, изолированный объект)
+350 большая сторона (вторая не больше 350) - png - логотип, связанный с основной механикой. Это должно быть строго изображение: без текста, букв и слов, в том числе без названия игры - НА ПРОЗРАЧНОМ ФОНЕ
+
+ВАЖНО: Все элементы КРОМЕ бекграунда должны быть на ПРОЗРАЧНОМ ФОНЕ (PNG с альфа-каналом, без белого/цветного фона за объектом). Бекграунд - единственное изображение с непрозрачным фоном.
+
+Дизайном можно пользоваться в Kotlin приложении, не обрабатывая и не разрезая изображения на куски.
+
+Все изображения - отдельные элементы. Каждый элемент не должен иметь внутренний отступ от края картинки (что-то типо "crop content" в gimp2)
+
+Все изображения не должны иметь свечений и теней.
+
+Все изображения необходимо архивировать в .zip, который называется Assets 1 (никаких _ и других символов, с пробелами, как есть), чтобы пользователь имел возможность скачать всё одним кликом. Файл README не нужен.
+После завершения работы вывести коротко - "Готово" + Архив
+
+Перед упаковкой в архив перепроверить каждое изображение по всем пунктам выше: размер и формат, нет внутреннего отступа от края, нет свечений и теней, прозрачный фон (кроме бекграунда), у бекграунда не закруглённые края, в логотипе нет текста, букв и слов. Изображение не прошло проверку - переделать его.

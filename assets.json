@@ -1,0 +1,59 @@
+{
+  "assets": [
+    {
+      "name": "bg_game",
+      "type": "bg",
+      "prompt": "Codex-generated bg for ContourMapScout"
+    },
+    {
+      "name": "button_rect",
+      "type": "button",
+      "prompt": "Codex-generated button for ContourMapScout"
+    },
+    {
+      "name": "button_round",
+      "type": "button",
+      "prompt": "Codex-generated button for ContourMapScout"
+    },
+    {
+      "name": "icon_home",
+      "type": "sprite",
+      "prompt": "Codex-generated sprite for ContourMapScout"
+    },
+    {
+      "name": "icon_pause",
+      "type": "sprite",
+      "prompt": "Codex-generated sprite for ContourMapScout"
+    },
+    {
+      "name": "logo",
+      "type": "icon",
+      "prompt": "Codex-generated icon for ContourMapScout"
+    },
+    {
+      "name": "sprite_1",
+      "type": "sprite",
+      "prompt": "Codex-generated sprite for ContourMapScout"
+    },
+    {
+      "name": "sprite_2",
+      "type": "sprite",
+      "prompt": "Codex-generated sprite for ContourMapScout"
+    },
+    {
+      "name": "sprite_3",
+      "type": "sprite",
+      "prompt": "Codex-generated sprite for ContourMapScout"
+    },
+    {
+      "name": "sprite_4",
+      "type": "sprite",
+      "prompt": "Codex-generated sprite for ContourMapScout"
+    },
+    {
+      "name": "sprite_5",
+      "type": "sprite",
+      "prompt": "Codex-generated sprite for ContourMapScout"
+    }
+  ]
+}

@@ -1,0 +1,102 @@
+# cm-build.yaml (React Native) — canonical Codemagic workflow for API-driven builds.
+# cm-prepare.sh copies this into the pushed repo as codemagic.yaml.
+#
+# Signing creds are NOT pre-configured in the Codemagic account (per-task tokens,
+# no browser/UI setup). Instead cm-prepare.sh passes them as per-build encrypted
+# environment variables via POST /builds `environment.variables`:
+#   MYAPP_RELEASE_KEYSTORE_BASE64 / _STORE_PASSWORD / _KEY_ALIAS / _KEY_PASSWORD
+# This step base64-decodes the keystore and Gradle reads the MYAPP_RELEASE_*
+# project properties — same shape as scripts/lib/gh-build.yml.
+#
+# 25.09.2026 — this workflow now also serves the PRE-REVIEW compile
+# (build-apk-cloud.sh, CM_TEST_BUILD=1), so:
+#   * npm: `npm ci` only when the lockfile is in sync, otherwise `npm install` —
+#     codegen adds deps to package.json without touching package-lock.json;
+#   * react-native-svg is force-pinned to 15.8.0 (>= 15.15 breaks Yoga on RN 0.76;
+#     mirrors pin_native_deps() in build-apk.sh);
+#   * every step's output is tee'd into build-logs/*.log and published as an
+#     artefact even when the build fails — cm-fetch-aab.sh pulls it into
+#     .gradle-last.log so heal-build.sh can read the compile error.
+workflows:
+  android-release:
+    name: Android Release Build
+    max_build_duration: 60
+    environment:
+      node: 22
+      java: 17
+    # Dependency download caches (26.10.2026). Codemagic keeps a cache PER APP, and every ticket
+    # has its own app, so this speeds up the repeat builds of one ticket (heal cycles, the
+    # final AAB after review), not its first build. Download caches only: node_modules is wiped
+    # by `npm ci` anyway, and build outputs are rebuilt by `clean`.
+    cache:
+      cache_paths:
+        - $HOME/.gradle/caches
+        - $HOME/.npm
+    scripts:
+      - name: Pin native deps
+        script: |
+          mkdir -p build-logs
+          node -e '
+            const fs=require("fs"); const p=JSON.parse(fs.readFileSync("package.json","utf8"));
+            const d=p.dependencies||{}; const cur=d["react-native-svg"]||"";
+            if (cur && cur !== "15.8.0") { d["react-native-svg"]="15.8.0"; p.dependencies=d;
+              fs.writeFileSync("package.json", JSON.stringify(p,null,2)+"\n");
+              console.log("pinned react-native-svg "+cur+" -> 15.8.0"); }
+          ' 2>&1 | tee build-logs/pin.log
+      - name: Install npm deps
+        script: |
+          set -o pipefail
+          if [ -f package-lock.json ] && npm ci --no-audit --no-fund 2>&1 | tee build-logs/npm.log; then
+            echo "npm ci ok"
+          else
+            echo "npm ci unavailable/out of sync — npm install" | tee -a build-logs/npm.log
+            npm install --no-audit --no-fund 2>&1 | tee -a build-logs/npm.log
+          fi
+      # compileSdk/targetSdk 36 — the platform may be missing from the runner image, AGP will not fetch it.
+      - name: Ensure Android SDK 36
+        script: |
+          # sdkmanager is NOT always on PATH: on Codemagic mac_mini_m2 the bare call failed
+          # with exit 127 "command not found" and killed the build before Gradle (ANDROID-3447,
+          # 2026-09-09). Resolve the binary via ANDROID_SDK_ROOT/ANDROID_HOME — the same
+          # way cm-build-unity.yaml does. Not found -> warn, not fail.
+          SDK_ROOT="${ANDROID_SDK_ROOT:-${ANDROID_HOME:-$HOME/programs/android-sdk-macosx}}"
+          SDKMAN=""
+          if command -v sdkmanager >/dev/null 2>&1; then
+            SDKMAN="$(command -v sdkmanager)"
+          else
+            for c in "$SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" \
+                     "$SDK_ROOT/cmdline-tools/bin/sdkmanager" \
+                     "$SDK_ROOT/tools/bin/sdkmanager"; do
+              if [ -x "$c" ]; then SDKMAN="$c"; break; fi
+            done
+          fi
+          if [ -z "$SDKMAN" ]; then
+            SDKMAN="$(ls -1 "$SDK_ROOT"/cmdline-tools/*/bin/sdkmanager 2>/dev/null | head -1)"
+          fi
+          if [ -z "$SDKMAN" ]; then
+            echo "WARN: sdkmanager not found (SDK_ROOT=$SDK_ROOT) — skipping platforms;android-36, handing the build over as is"
+            exit 0
+          fi
+          echo "sdkmanager: $SDKMAN (sdk_root=$SDK_ROOT)"
+          yes | "$SDKMAN" --sdk_root="$SDK_ROOT" --licenses > /dev/null 2>&1 || true
+          "$SDKMAN" --sdk_root="$SDK_ROOT" "platforms;android-36" "build-tools;36.0.0"
+      - name: Decode keystore
+        script: |
+          mkdir -p android/app
+          echo "$MYAPP_RELEASE_KEYSTORE_BASE64" | base64 -d > android/app/release.keystore
+          ls -lh android/app/release.keystore
+      - name: Gradle bundleRelease + assembleRelease
+        script: |
+          set -o pipefail
+          cd android
+          chmod +x ./gradlew
+          ./gradlew --no-daemon clean bundleRelease assembleRelease \
+            -PMYAPP_RELEASE_STORE_FILE="$CM_BUILD_DIR/android/app/release.keystore" \
+            -PMYAPP_RELEASE_STORE_PASSWORD="$MYAPP_RELEASE_STORE_PASSWORD" \
+            -PMYAPP_RELEASE_KEY_ALIAS="$MYAPP_RELEASE_KEY_ALIAS" \
+            -PMYAPP_RELEASE_KEY_PASSWORD="$MYAPP_RELEASE_KEY_PASSWORD" \
+            2>&1 | tee "$CM_BUILD_DIR/build-logs/gradle.log"
+    artifacts:
+      - android/app/build/outputs/bundle/release/*.aab
+      - android/app/build/outputs/apk/release/*.apk
+      - build-logs/*.log
